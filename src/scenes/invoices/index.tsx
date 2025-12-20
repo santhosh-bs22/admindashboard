@@ -1,33 +1,19 @@
 import React, { useState } from 'react';
-import { Search, Download, Printer, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Search, Download, Printer, CheckCircle, XCircle, Clock, FileText } from 'lucide-react';
 import Header from '../../components/Header';
-
-interface Invoice {
-  id: number;
-  client: string;
-  date: string;
-  amount: number;
-  status: 'paid' | 'pending' | 'overdue';
-}
+import { formatINR } from '../../lib/utils';
+import { mockInvoices } from '../../data/mockData';
 
 const Invoices: React.FC = () => {
   const [search, setSearch] = useState('');
-  const [selected, setSelected] = useState<number[]>([]);
+  const [selected, setSelected] = useState<string[]>([]);
 
-  const invoices: Invoice[] = [
-    { id: 1, client: 'John Doe', date: '2024-01-15', amount: 2500, status: 'paid' },
-    { id: 2, client: 'Jane Smith', date: '2024-01-16', amount: 1500, status: 'pending' },
-    { id: 3, client: 'Bob Johnson', date: '2024-01-17', amount: 3500, status: 'overdue' },
-    { id: 4, client: 'Alice Brown', date: '2024-01-18', amount: 500, status: 'paid' },
-    { id: 5, client: 'Charlie Wilson', date: '2024-01-19', amount: 1800, status: 'pending' },
-    { id: 6, client: 'David Lee', date: '2024-01-20', amount: 2200, status: 'paid' },
-  ];
-
-  const filteredInvoices = invoices.filter(invoice =>
-    invoice.client.toLowerCase().includes(search.toLowerCase())
+  const filteredInvoices = mockInvoices.filter(invoice =>
+    invoice.client.toLowerCase().includes(search.toLowerCase()) ||
+    invoice.id.toLowerCase().includes(search.toLowerCase())
   );
 
-  const toggleSelect = (id: number) => {
+  const toggleSelect = (id: string) => {
     setSelected(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
@@ -41,128 +27,87 @@ const Invoices: React.FC = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return <CheckCircle className="h-4 w-4 text-green-600" />;
-      case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-600" />;
-      case 'overdue':
-        return <XCircle className="h-4 w-4 text-red-600" />;
-      default:
-        return null;
-    }
-  };
+  const getStatusBadge = (status: string) => {
+    const config = {
+      paid: { icon: CheckCircle, class: 'text-green-600 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800' },
+      pending: { icon: Clock, class: 'text-yellow-600 bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800' },
+      overdue: { icon: XCircle, class: 'text-red-600 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800' },
+    };
+    const Conf = config[status as keyof typeof config];
+    const Icon = Conf.icon;
 
-  const getStatusText = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'Paid';
-      case 'pending':
-        return 'Pending';
-      case 'overdue':
-        return 'Overdue';
-      default:
-        return status;
-    }
-  };
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'paid':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300';
-      case 'pending':
-        return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300';
-      case 'overdue':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
-      default:
-        return '';
-    }
+    return (
+      <div className={`flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium w-fit border ${Conf.class}`}>
+        <Icon className="w-3.5 h-3.5" />
+        {status.charAt(0).toUpperCase() + status.slice(1)}
+      </div>
+    );
   };
 
   return (
-    <div>
-      <Header title="Invoices" subtitle="Manage your invoices and balances" />
+    <div className="space-y-6">
+      <Header title="Invoices" subtitle="Manage your billing and invoices" />
       
-      <div className="mb-6 flex flex-col sm:flex-row gap-4 justify-between">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+      <div className="flex flex-col sm:flex-row gap-4 justify-between items-center bg-card p-4 rounded-lg border shadow-sm">
+        <div className="relative flex-1 w-full sm:max-w-sm">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             type="search"
-            placeholder="Search invoices..."
+            placeholder="Search invoice or client..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-lg border bg-background py-2 pl-10 pr-3 text-sm placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary"
+            className="w-full rounded-md border border-input bg-background px-3 py-2 pl-10 text-sm focus-visible:ring-2 focus-visible:ring-ring"
           />
         </div>
-        <div className="flex gap-2">
-          <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted">
-            <Download className="h-4 w-4" />
-            Export
+        <div className="flex gap-2 w-full sm:w-auto">
+          <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-md border bg-background px-4 py-2 text-sm font-medium hover:bg-accent">
+            <Download className="h-4 w-4" /> Export
           </button>
-          <button className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted">
-            <Printer className="h-4 w-4" />
-            Print
-          </button>
-          <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90">
-            Create Invoice
+          <button className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90">
+            <FileText className="h-4 w-4" /> Create Invoice
           </button>
         </div>
       </div>
 
-      <div className="bg-card rounded-xl border overflow-hidden">
+      <div className="rounded-md border bg-card shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b bg-muted/50">
-                <th className="text-left py-3 px-6">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 border-b">
+              <tr>
+                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground w-[50px]">
                   <input
                     type="checkbox"
                     checked={selected.length === filteredInvoices.length && filteredInvoices.length > 0}
                     onChange={toggleSelectAll}
-                    className="rounded border-gray-300"
+                    className="h-4 w-4 rounded border-gray-300 accent-primary"
                   />
                 </th>
-                <th className="text-left py-3 px-6 font-semibold">ID</th>
-                <th className="text-left py-3 px-6 font-semibold">Client</th>
-                <th className="text-left py-3 px-6 font-semibold">Date</th>
-                <th className="text-left py-3 px-6 font-semibold">Amount</th>
-                <th className="text-left py-3 px-6 font-semibold">Status</th>
-                <th className="text-left py-3 px-6 font-semibold">Actions</th>
+                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Invoice ID</th>
+                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Client</th>
+                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Date</th>
+                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Amount</th>
+                <th className="h-10 px-4 text-left align-middle font-medium text-muted-foreground">Status</th>
+                <th className="h-10 px-4 text-right align-middle font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filteredInvoices.map((invoice) => (
-                <tr key={invoice.id} className="border-b hover:bg-muted/50">
-                  <td className="py-3 px-6">
+                <tr key={invoice.id} className="border-b transition-colors hover:bg-muted/50 last:border-0">
+                  <td className="p-4 align-middle">
                     <input
                       type="checkbox"
                       checked={selected.includes(invoice.id)}
                       onChange={() => toggleSelect(invoice.id)}
-                      className="rounded border-gray-300"
+                      className="h-4 w-4 rounded border-gray-300 accent-primary"
                     />
                   </td>
-                  <td className="py-3 px-6">#{invoice.id}</td>
-                  <td className="py-3 px-6 font-medium">{invoice.client}</td>
-                  <td className="py-3 px-6">{invoice.date}</td>
-                  <td className="py-3 px-6 font-semibold">${invoice.amount.toLocaleString()}</td>
-                  <td className="py-3 px-6">
-                    <div className="flex items-center gap-2">
-                      {getStatusIcon(invoice.status)}
-                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusColor(invoice.status)}`}>
-                        {getStatusText(invoice.status)}
-                      </span>
-                    </div>
-                  </td>
-                  <td className="py-3 px-6">
-                    <div className="flex gap-2">
-                      <button className="text-sm font-medium text-primary hover:underline">
-                        View
-                      </button>
-                      <button className="text-sm font-medium text-primary hover:underline">
-                        Edit
-                      </button>
-                    </div>
+                  <td className="p-4 align-middle font-medium">{invoice.id}</td>
+                  <td className="p-4 align-middle">{invoice.client}</td>
+                  <td className="p-4 align-middle text-muted-foreground">{invoice.date}</td>
+                  <td className="p-4 align-middle font-semibold">{formatINR(invoice.amount)}</td>
+                  <td className="p-4 align-middle">{getStatusBadge(invoice.status)}</td>
+                  <td className="p-4 align-middle text-right">
+                    <button className="text-primary hover:underline font-medium text-xs">View Details</button>
                   </td>
                 </tr>
               ))}
@@ -170,23 +115,9 @@ const Invoices: React.FC = () => {
           </table>
         </div>
       </div>
-
-      <div className="mt-6 flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
-          {selected.length} of {filteredInvoices.length} selected
-        </div>
-        <div className="flex gap-2">
-          {selected.length > 0 && (
-            <>
-              <button className="rounded-lg border px-4 py-2 text-sm font-medium hover:bg-muted">
-                Mark as Paid
-              </button>
-              <button className="rounded-lg border px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
-                Delete Selected
-              </button>
-            </>
-          )}
-        </div>
+      
+      <div className="text-sm text-muted-foreground px-2">
+        Showing {filteredInvoices.length} entries
       </div>
     </div>
   );

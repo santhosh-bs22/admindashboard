@@ -7,109 +7,39 @@ interface PieChartProps {
 }
 
 const PieChart: React.FC<PieChartProps> = ({ data, height = 400 }) => {
+  const theme = {
+    labels: { text: { fill: '#71717a' } },
+    legends: { text: { fill: '#71717a' } },
+    tooltip: {
+      container: {
+        background: 'hsl(var(--card))',
+        color: 'hsl(var(--foreground))',
+        fontSize: '12px',
+        borderRadius: '6px',
+        boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+        border: '1px solid hsl(var(--border))'
+      },
+    },
+  };
+
   return (
-    <div style={{ height }}>
+    <div style={{ height }} className="w-full">
       <ResponsivePie
         data={data}
+        theme={theme}
         margin={{ top: 40, right: 80, bottom: 80, left: 80 }}
         innerRadius={0.5}
         padAngle={0.7}
         cornerRadius={3}
         activeOuterRadiusOffset={8}
         borderWidth={1}
-        borderColor={{
-          from: 'color',
-          modifiers: [
-            [
-              'darker',
-              0.2
-            ]
-          ]
-        }}
+        borderColor={{ from: 'color', modifiers: [['darker', 0.2]] }}
         arcLinkLabelsSkipAngle={10}
-        arcLinkLabelsTextColor="#333333"
+        arcLinkLabelsTextColor="hsl(var(--foreground))"
         arcLinkLabelsThickness={2}
         arcLinkLabelsColor={{ from: 'color' }}
         arcLabelsSkipAngle={10}
-        arcLabelsTextColor={{
-          from: 'color',
-          modifiers: [
-            [
-              'darker',
-              2
-            ]
-          ]
-        }}
-        defs={[
-          {
-            id: 'dots',
-            type: 'patternDots',
-            background: 'inherit',
-            color: 'rgba(255, 255, 255, 0.3)',
-            size: 4,
-            padding: 1,
-            stagger: true
-          },
-          {
-            id: 'lines',
-            type: 'patternLines',
-            background: 'inherit',
-            color: 'rgba(255, 255, 255, 0.3)',
-            rotation: -45,
-            lineWidth: 6,
-            spacing: 10
-          }
-        ]}
-        fill={[
-          {
-            match: {
-              id: 'ruby'
-            },
-            id: 'dots'
-          },
-          {
-            match: {
-              id: 'c'
-            },
-            id: 'dots'
-          },
-          {
-            match: {
-              id: 'go'
-            },
-            id: 'dots'
-          },
-          {
-            match: {
-              id: 'python'
-            },
-            id: 'dots'
-          },
-          {
-            match: {
-              id: 'scala'
-            },
-            id: 'lines'
-          },
-          {
-            match: {
-              id: 'lisp'
-            },
-            id: 'lines'
-          },
-          {
-            match: {
-              id: 'elixir'
-            },
-            id: 'lines'
-          },
-          {
-            match: {
-              id: 'javascript'
-            },
-            id: 'lines'
-          }
-        ]}
+        arcLabelsTextColor={{ from: 'color', modifiers: [['darker', 2]] }}
         legends={[
           {
             anchor: 'bottom',
@@ -125,14 +55,7 @@ const PieChart: React.FC<PieChartProps> = ({ data, height = 400 }) => {
             itemOpacity: 1,
             symbolSize: 18,
             symbolShape: 'circle',
-            effects: [
-              {
-                on: 'hover',
-                style: {
-                  itemTextColor: '#000'
-                }
-              }
-            ]
+            effects: [{ on: 'hover', style: { itemTextColor: 'hsl(var(--primary))' } }]
           }
         ]}
       />

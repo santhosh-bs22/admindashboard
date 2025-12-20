@@ -1,159 +1,87 @@
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { X, Home, Users, Phone, FileText, Calendar, HelpCircle, BarChart3, PieChart, LineChart, Map } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { 
+  Home, Users, Contact, Receipt, User, Calendar, // Changed Contacts -> Contact
+  HelpCircle, BarChart2, PieChart, TrendingUp, Map, Menu 
+} from 'lucide-react';
 import { cn } from '../../lib/utils';
 
 interface SidebarProps {
   isOpen: boolean;
-  onClose: () => void;
+  setIsOpen: (value: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const navItems = [
-    { to: '/', icon: Home, label: 'Dashboard' },
-    { to: '/team', icon: Users, label: 'Team' },
-    { to: '/contacts', icon: Phone, label: 'Contacts' },
-    { to: '/invoices', icon: FileText, label: 'Invoices' },
-    { to: '/form', icon: FileText, label: 'Profile Form' },
-    { to: '/calendar', icon: Calendar, label: 'Calendar' },
-    { to: '/faq', icon: HelpCircle, label: 'FAQ' },
-  ];
+const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+  const location = useLocation();
 
-  const chartItems = [
-    { to: '/bar', icon: BarChart3, label: 'Bar Chart' },
-    { to: '/pie', icon: PieChart, label: 'Pie Chart' },
-    { to: '/line', icon: LineChart, label: 'Line Chart' },
-    { to: '/geography', icon: Map, label: 'Geography' },
+  const menuItems = [
+    { title: 'Dashboard', path: '/', icon: Home },
+    { title: 'Manage Team', path: '/team', icon: Users },
+    { title: 'Contacts', path: '/contacts', icon: Contact }, // Changed Contacts -> Contact
+    { title: 'Invoices', path: '/invoices', icon: Receipt },
+    { title: 'Profile Form', path: '/form', icon: User },
+    { title: 'Calendar', path: '/calendar', icon: Calendar },
+    { title: 'FAQ Page', path: '/faq', icon: HelpCircle },
+    { title: 'Bar Chart', path: '/bar', icon: BarChart2 },
+    { title: 'Pie Chart', path: '/pie', icon: PieChart },
+    { title: 'Line Chart', path: '/line', icon: TrendingUp },
+    { title: 'Geography', path: '/geography', icon: Map },
   ];
 
   return (
-    <>
-      {/* Mobile Sidebar Overlay */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-gray-600 bg-opacity-75 lg:hidden"
-          onClick={onClose}
-        />
+    <aside 
+      className={cn(
+        "bg-card border-r shadow-sm transition-all duration-300 ease-in-out flex flex-col z-20",
+        isOpen ? "w-64" : "w-20"
       )}
+    >
+      {/* Brand Logo */}
+      <div className="h-16 flex items-center justify-center border-b px-4">
+        {isOpen ? (
+           <h2 className="text-xl font-bold tracking-wider uppercase text-primary">ADMINIS</h2>
+        ) : (
+           <h2 className="text-xl font-bold text-primary">A</h2>
+        )}
+      </div>
 
-      {/* Mobile Sidebar */}
-      <div className={cn(
-        "fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-900 transform transition-transform duration-300 ease-in-out lg:hidden",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Navigation</h2>
-          <button 
-            onClick={onClose} 
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <nav className="p-4 space-y-1">
-          <div className="mb-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-            Main
-          </div>
-          {navItems.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              onClick={onClose}
-              className={({ isActive }) => cn(
-                "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                isActive
-                  ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                  : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
+      {/* Navigation Menu */}
+      <nav className="flex-1 overflow-y-auto py-4 space-y-1">
+        {menuItems.map((item) => {
+          const isActive = location.pathname === item.path;
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={cn(
+                "flex items-center px-6 py-3 text-sm font-medium transition-colors relative",
+                isActive 
+                  ? "text-primary bg-primary/10 border-r-4 border-primary" 
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                !isOpen && "justify-center px-2"
               )}
             >
-              <item.icon className="w-5 h-5" />
-              <span>{item.label}</span>
-            </NavLink>
-          ))}
-          
-          <div className="mt-6 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <div className="mb-2 px-3 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Charts
-            </div>
-            {chartItems.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                onClick={onClose}
-                className={({ isActive }) => cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                  isActive
-                    ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                    : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                )}
-              >
-                <item.icon className="w-5 h-5" />
-                <span>{item.label}</span>
-              </NavLink>
-            ))}
-          </div>
-        </nav>
-      </div>
+              <item.icon className={cn("h-5 w-5", isOpen && "mr-3")} />
+              {isOpen && <span>{item.title}</span>}
+            </Link>
+          );
+        })}
+      </nav>
 
-      {/* Desktop Sidebar */}
-      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-72 lg:flex-col">
-        <div className="flex grow flex-col gap-y-5 overflow-y-auto border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-6 pb-4">
-          <div className="flex h-16 shrink-0 items-center">
-            <h1 className="text-xl font-bold text-gray-900 dark:text-white">Admin Dashboard</h1>
-          </div>
-          <nav className="flex flex-1 flex-col">
-            <ul className="flex flex-1 flex-col gap-y-7">
-              <li>
-                <ul className="-mx-2 space-y-1">
-                  <li className="mb-2 px-2 text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                    Main
-                  </li>
-                  {navItems.map((item) => (
-                    <li key={item.to}>
-                      <NavLink
-                        to={item.to}
-                        className={({ isActive }) => cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                          isActive
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                        )}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        {item.label}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-              <li>
-                <div className="text-xs font-semibold leading-6 text-gray-500 dark:text-gray-400 uppercase tracking-wider px-2">
-                  Charts
-                </div>
-                <ul className="-mx-2 mt-2 space-y-1">
-                  {chartItems.map((item) => (
-                    <li key={item.to}>
-                      <NavLink
-                        to={item.to}
-                        className={({ isActive }) => cn(
-                          "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors",
-                          isActive
-                            ? "bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400"
-                            : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
-                        )}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        {item.label}
-                      </NavLink>
-                    </li>
-                  ))}
-                </ul>
-              </li>
-            </ul>
-          </nav>
+      {/* User Footer */}
+      <div className="p-4 border-t">
+        <div className={cn("flex items-center", !isOpen && "justify-center")}>
+           <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+             A
+           </div>
+           {isOpen && (
+             <div className="ml-3">
+               <p className="text-sm font-medium">Admin User</p>
+               <p className="text-xs text-muted-foreground">admin@test.com</p>
+             </div>
+           )}
         </div>
       </div>
-    </>
+    </aside>
   );
 };
 

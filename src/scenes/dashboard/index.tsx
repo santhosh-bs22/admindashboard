@@ -1,111 +1,186 @@
-import React from 'react';
-import { Mail, Users, DollarSign, TrendingUp } from 'lucide-react';
-import Header from '../../components/Header';
-import StatBox from '../../components/StatBox';
-import ProgressCircle from '../../components/ProgressCircle';
-import LineChart from '../../components/LineChart';
-import { lineChartData, mockTransactions } from '../../data/mockData';
+import React, { useState, useEffect } from 'react';
+import { 
+  Users, 
+  IndianRupee, 
+  Activity, 
+  CreditCard, 
+  ArrowUpRight, 
+  ArrowDownRight,
+  Download
+} from 'lucide-react';
+import { 
+  AreaChart, 
+  Area, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer 
+} from 'recharts';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/card';
+import { formatINR } from '../../lib/utils';
+import { mockTransactions, revenueData } from '../../data/mockData';
 
 const Dashboard: React.FC = () => {
+  const [activeUsers, setActiveUsers] = useState(1234);
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveUsers(prev => prev + Math.floor(Math.random() * 10) - 4);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
-    <div>
-      <Header 
-        title="Dashboard" 
-        subtitle="Welcome to your admin dashboard" 
-      />
-      
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatBox
-          title="Emails Sent"
-          value="12,361"
-          subtitle="+14% from last month"
-          icon={Mail}
-          trend={{ value: 14, isPositive: true }}
-        />
-        <StatBox
-          title="Sales Obtained"
-          value="431,225"
-          subtitle="+21% from last month"
-          icon={DollarSign}
-          trend={{ value: 21, isPositive: true }}
-        />
-        <StatBox
-          title="New Clients"
-          value="32,441"
-          subtitle="+5% from last month"
-          icon={Users}
-          trend={{ value: 5, isPositive: true }}
-        />
-        <StatBox
-          title="Traffic Received"
-          value="1,325,134"
-          subtitle="+43% from last month"
-          icon={TrendingUp}
-          trend={{ value: 43, isPositive: true }}
-        />
+    <div className="flex-1 space-y-4 p-8 pt-6">
+      <div className="flex items-center justify-between space-y-2">
+        <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
+        <div className="flex items-center space-x-2">
+          <button 
+            className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2"
+            onClick={() => setIsLoading(!isLoading)}
+          >
+            <Download className="mr-2 h-4 w-4" />
+            Download Reports
+          </button>
+        </div>
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        {/* Revenue Chart */}
-        <div className="lg:col-span-2 bg-card rounded-xl border p-6">
-          <h3 className="text-lg font-semibold mb-4">Revenue Generated</h3>
-          <div className="h-[300px]">
-            <LineChart data={lineChartData} height={300} />
-          </div>
-        </div>
-
-        {/* Campaign Progress */}
-        <div className="bg-card rounded-xl border p-6">
-          <h3 className="text-lg font-semibold mb-4">Campaign</h3>
-          <div className="flex flex-col items-center">
-            <ProgressCircle value={75} size={180} />
-            <p className="mt-4 text-center text-muted-foreground">
-              $48,352 revenue generated
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+            <IndianRupee className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{formatINR(4523189)}</div>
+            <p className="text-xs text-muted-foreground flex items-center mt-1">
+              <span className="text-green-500 flex items-center mr-1">
+                +20.1% <ArrowUpRight className="h-3 w-3 ml-0.5" />
+              </span>
+              from last month
             </p>
-            <p className="text-sm text-center">Includes extra misc expenditures and costs</p>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Users (Live)</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground animate-pulse" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold transition-all duration-300">{activeUsers.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground flex items-center mt-1">
+              <span className="text-green-500 flex items-center mr-1">
+                +180 <ArrowUpRight className="h-3 w-3 ml-0.5" />
+              </span>
+              since last hour
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Sales</CardTitle>
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">12,234</div>
+            <p className="text-xs text-muted-foreground flex items-center mt-1">
+              <span className="text-red-500 flex items-center mr-1">
+                -4% <ArrowDownRight className="h-3 w-3 ml-0.5" />
+              </span>
+              from last month
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Now</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">+573</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              +201 since last hour
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Recent Transactions */}
-      <div className="bg-card rounded-xl border p-6">
-        <h3 className="text-lg font-semibold mb-4">Recent Transactions</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b">
-                <th className="text-left py-3 px-4">ID</th>
-                <th className="text-left py-3 px-4">Name</th>
-                <th className="text-left py-3 px-4">Date</th>
-                <th className="text-left py-3 px-4">Amount</th>
-                <th className="text-left py-3 px-4">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {mockTransactions.map((transaction) => (
-                <tr key={transaction.id} className="border-b hover:bg-muted/50">
-                  <td className="py-3 px-4">{transaction.id}</td>
-                  <td className="py-3 px-4">{transaction.name}</td>
-                  <td className="py-3 px-4">{transaction.date}</td>
-                  <td className="py-3 px-4">${transaction.amount.toLocaleString()}</td>
-                  <td className="py-3 px-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      transaction.status === 'completed' 
-                        ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                        : transaction.status === 'pending'
-                        ? 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300'
-                        : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
-                    }`}>
-                      {transaction.status}
-                    </span>
-                  </td>
-                </tr>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Overview</CardTitle>
+            <CardDescription>
+              Monthly revenue breakdown for the current fiscal year.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pl-2">
+            <div className="h-[350px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                    </linearGradient>
+                    <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                    </linearGradient>
+                  </defs>
+                  <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                  <YAxis 
+                    stroke="#888888" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false}
+                    tickFormatter={(value) => `₹${value / 1000}k`}
+                  />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                    formatter={(value: number | undefined) => [formatINR(value || 0), "Amount"]}
+                  />
+                  <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="url(#colorRevenue)" />
+                  <Area type="monotone" dataKey="profit" stroke="#82ca9d" fillOpacity={1} fill="url(#colorProfit)" />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Recent Sales</CardTitle>
+            <CardDescription>
+              You made {mockTransactions.filter(t => t.status === 'Success').length} successful sales this month.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-8">
+              {mockTransactions.slice(0, 5).map((txn) => (
+                <div key={txn.id} className="flex items-center">
+                  <div className="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 items-center justify-center">
+                    {/* Changed txn.user to txn.name */}
+                    <span className="text-xs font-bold">{txn.name.charAt(0)}</span>
+                  </div>
+                  <div className="ml-4 space-y-1">
+                    {/* Changed txn.user to txn.name */}
+                    <p className="text-sm font-medium leading-none">{txn.name}</p>
+                    <p className="text-xs text-muted-foreground">{txn.method}</p>
+                  </div>
+                  <div className="ml-auto font-medium">
+                    {txn.status === 'Success' ? '+' : ''}{formatINR(txn.amount)}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

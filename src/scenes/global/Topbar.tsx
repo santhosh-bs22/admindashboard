@@ -1,69 +1,63 @@
-import React, { useState } from 'react';
-import { Search, Bell, Settings, Sun, Moon, Menu } from 'lucide-react';
-import { useTheme } from '../../contexts/ThemeContext';
+import React, { useContext } from 'react';
+import { Search, Bell, Settings, User, Menu, Sun, Moon } from 'lucide-react';
+import { ThemeContext } from '../../contexts/ThemeContext';
 
 interface TopbarProps {
-  onMenuClick: () => void;
+  toggleSidebar: () => void;
 }
 
-const Topbar: React.FC<TopbarProps> = ({ onMenuClick }) => {
-  const { theme, toggleTheme } = useTheme();
-  const [searchQuery, setSearchQuery] = useState('');
+const Topbar: React.FC<TopbarProps> = ({ toggleSidebar }) => {
+  const themeContext = useContext(ThemeContext);
+  
+  if (!themeContext) {
+    throw new Error("Topbar must be used within a ThemeProvider");
+  }
+
+  const { theme, toggleTheme } = themeContext;
 
   return (
-    <div className="sticky top-0 z-40 flex h-16 shrink-0 items-center gap-x-4 border-b border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 px-4 shadow-sm sm:gap-x-6 sm:px-6 lg:px-8">
-      <button
-        type="button"
-        onClick={onMenuClick}
-        className="-m-2.5 p-2.5 text-gray-700 dark:text-gray-300 lg:hidden"
-      >
-        <Menu className="h-6 w-6" />
-      </button>
-
-      <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
-        <div className="relative flex flex-1">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400" />
-          <input
-            type="search"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="block w-full rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 py-2 pl-10 pr-3 text-sm placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 focus:border-transparent"
+    <header className="h-16 bg-card border-b flex items-center justify-between px-6 sticky top-0 z-10 shadow-sm">
+      {/* Left Side: Toggle & Search */}
+      <div className="flex items-center gap-4">
+        <button 
+          onClick={toggleSidebar} 
+          className="p-2 rounded-md hover:bg-muted text-muted-foreground"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        
+        <div className="relative hidden md:block">
+          <Search className="absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <input 
+            type="text" 
+            placeholder="Search..." 
+            className="h-9 w-64 rounded-md border bg-background pl-9 pr-4 text-sm outline-none focus:ring-2 focus:ring-primary/20"
           />
         </div>
-        <div className="flex items-center gap-x-4 lg:gap-x-6">
-          <button className="relative p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-1 right-1 h-2 w-2 rounded-full bg-red-500" />
-          </button>
-          <button className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300">
-            <Settings className="h-5 w-5" />
-          </button>
-          <button
-            onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300"
-          >
-            {theme === 'light' ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )}
-          </button>
-          <div className="hidden lg:block lg:h-6 lg:w-px lg:bg-gray-200 dark:lg:bg-gray-700" />
-          <div className="flex items-center gap-x-3">
-            <img
-              className="h-8 w-8 rounded-full bg-gray-200 dark:bg-gray-700"
-              src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-              alt="User avatar"
-            />
-            <div className="hidden lg:block">
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">Admin User</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">admin@example.com</p>
-            </div>
-          </div>
+      </div>
+
+      {/* Right Side: Icons & Actions */}
+      <div className="flex items-center gap-2">
+        <button 
+          onClick={toggleTheme} 
+          className="p-2 rounded-full hover:bg-muted text-foreground transition-colors"
+        >
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </button>
+        
+        <button className="p-2 rounded-full hover:bg-muted text-muted-foreground">
+          <Bell className="h-5 w-5" />
+        </button>
+        
+        <button className="p-2 rounded-full hover:bg-muted text-muted-foreground">
+          <Settings className="h-5 w-5" />
+        </button>
+        
+        <div className="ml-2 h-8 w-8 rounded-full bg-muted flex items-center justify-center border cursor-pointer hover:ring-2 hover:ring-ring">
+          <User className="h-5 w-5 text-muted-foreground" />
         </div>
       </div>
-    </div>
+    </header>
   );
 };
 
