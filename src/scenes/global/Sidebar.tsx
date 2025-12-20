@@ -2,7 +2,8 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
   Home, Users, Contact, Receipt, User, Calendar, 
-  HelpCircle, BarChart2, PieChart, TrendingUp, Map 
+  HelpCircle, BarChart2, PieChart, TrendingUp, Map,
+  ShoppingBag, ShoppingCart // Added new icons
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -19,6 +20,10 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     { title: 'Manage Team', path: '/team', icon: Users },
     { title: 'Contacts', path: '/contacts', icon: Contact },
     { title: 'Invoices', path: '/invoices', icon: Receipt },
+    // --- New E-commerce Sections ---
+    { title: 'Products', path: '/products', icon: ShoppingBag },
+    { title: 'Orders', path: '/orders', icon: ShoppingCart },
+    // -------------------------------
     { title: 'Profile Form', path: '/form', icon: User },
     { title: 'Calendar', path: '/calendar', icon: Calendar },
     { title: 'FAQ Page', path: '/faq', icon: HelpCircle },
@@ -32,8 +37,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
     <aside 
       className={cn(
         "bg-card border-r shadow-sm transition-all duration-300 ease-in-out flex flex-col z-40 h-full",
-        // Mobile: Fixed position, Slide in/out logic
-        // Desktop: Relative position, Width toggle logic
         "fixed inset-y-0 left-0 md:relative", 
         isOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full md:translate-x-0 md:w-20"
       )}
@@ -55,14 +58,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
             <Link
               key={item.path}
               to={item.path}
-              // Close sidebar on mobile when a link is clicked
               onClick={() => window.innerWidth < 768 && setIsOpen(false)}
               className={cn(
                 "flex items-center px-6 py-3 text-sm font-medium transition-colors relative",
                 isActive 
                   ? "text-primary bg-primary/10 border-r-4 border-primary" 
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                !isOpen && "md:justify-center md:px-2" // Only center icons on desktop collapsed state
+                !isOpen && "md:justify-center md:px-2" 
               )}
             >
               <item.icon className={cn("h-5 w-5", isOpen && "mr-3")} />

@@ -14,6 +14,10 @@ import FAQ from './scenes/faq';
 import Geography from './scenes/geography';
 import Calendar from './scenes/calendar';
 
+// --- New Imports ---
+import Products from './scenes/products';
+import Orders from './scenes/orders';
+
 const App: React.FC = () => {
   return (
     <ThemeProvider>
@@ -27,6 +31,11 @@ const App: React.FC = () => {
             <Route path="/team" element={<Team />} />
             <Route path="/contacts" element={<Contacts />} />
             <Route path="/invoices" element={<Invoices />} />
+            
+            {/* New Routes */}
+            <Route path="/products" element={<Products />} />
+            <Route path="/orders" element={<Orders />} />
+
             <Route path="/form" element={<Form />} />
             <Route path="/calendar" element={<Calendar />} />
             <Route path="/faq" element={<FAQ />} />

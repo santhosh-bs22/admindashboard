@@ -41,6 +41,48 @@ const Dashboard: React.FC = () => {
     return txn.status === statusFilter;
   });
 
+  // 3. Download Report Logic
+  const handleDownloadReport = () => {
+    setIsLoading(true);
+
+    // Simulate a brief delay for better UX
+    setTimeout(() => {
+      // --- Section A: Revenue Data ---
+      const revenueHeaders = ['Month', 'Revenue', 'Profit', 'Orders'];
+      const revenueRows = revenueData.map(item => 
+        [item.name, item.revenue, item.profit, item.orders || 0].join(',')
+      );
+
+      // --- Section B: Transactions Data (Respects current filter) ---
+      const txnHeaders = ['ID', 'User', 'Date', 'Amount', 'Status', 'Method'];
+      const txnRows = filteredTransactions.map(txn => 
+        [txn.id, txn.name, txn.date, txn.amount, txn.status, txn.method].join(',')
+      );
+
+      // Combine into a single CSV string with separators
+      const csvContent = [
+        '--- MONTHLY FINANCIAL OVERVIEW ---',
+        revenueHeaders.join(','),
+        ...revenueRows,
+        '\n--- RECENT TRANSACTIONS REPORT ---',
+        txnHeaders.join(','),
+        ...txnRows
+      ].join('\n');
+
+      // Create Blob and Trigger Download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `dashboard_report_${new Date().toISOString().split('T')[0]}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      setIsLoading(false);
+    }, 800);
+  };
+
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -48,10 +90,11 @@ const Dashboard: React.FC = () => {
         <div className="flex items-center space-x-2">
           <button 
             className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground shadow hover:bg-primary/90 h-9 px-4 py-2"
-            onClick={() => setIsLoading(!isLoading)}
+            onClick={handleDownloadReport}
+            disabled={isLoading}
           >
-            <Download className="mr-2 h-4 w-4" />
-            Download Reports
+            <Download className={`mr-2 h-4 w-4 ${isLoading ? 'animate-bounce' : ''}`} />
+            {isLoading ? 'Downloading...' : 'Download Reports'}
           </button>
         </div>
       </div>
@@ -191,7 +234,7 @@ const Dashboard: React.FC = () => {
           <CardHeader>
             <div className="flex items-center justify-between mb-2">
               <CardTitle>Recent Sales</CardTitle>
-              {/* 3. Filter Buttons UI */}
+              {/* Filter Buttons UI */}
               <div className="flex space-x-2">
                 {['All', 'Success', 'Processing', 'Failed'].map((status) => (
                   <button
@@ -217,7 +260,7 @@ const Dashboard: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              {/* 4. Display Filtered Transactions (Showing up to 6) */}
+              {/* Display Filtered Transactions (Showing up to 6) */}
               {filteredTransactions.slice(0, 6).map((txn) => (
                 <div key={txn.id} className="flex items-center group">
                   <div className="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary/10 text-primary items-center justify-center font-bold border border-primary/20 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
