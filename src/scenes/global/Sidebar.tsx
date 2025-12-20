@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  Home, Users, Contact, Receipt, User, Calendar, // Changed Contacts -> Contact
-  HelpCircle, BarChart2, PieChart, TrendingUp, Map, Menu 
+  Home, Users, Contact, Receipt, User, Calendar, 
+  HelpCircle, BarChart2, PieChart, TrendingUp, Map 
 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -11,13 +11,13 @@ interface SidebarProps {
   setIsOpen: (value: boolean) => void;
 }
 
-const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
+const Sidebar: React.FC<SidebarProps> = ({ isOpen, setIsOpen }) => {
   const location = useLocation();
 
   const menuItems = [
     { title: 'Dashboard', path: '/', icon: Home },
     { title: 'Manage Team', path: '/team', icon: Users },
-    { title: 'Contacts', path: '/contacts', icon: Contact }, // Changed Contacts -> Contact
+    { title: 'Contacts', path: '/contacts', icon: Contact },
     { title: 'Invoices', path: '/invoices', icon: Receipt },
     { title: 'Profile Form', path: '/form', icon: User },
     { title: 'Calendar', path: '/calendar', icon: Calendar },
@@ -31,8 +31,11 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
   return (
     <aside 
       className={cn(
-        "bg-card border-r shadow-sm transition-all duration-300 ease-in-out flex flex-col z-20",
-        isOpen ? "w-64" : "w-20"
+        "bg-card border-r shadow-sm transition-all duration-300 ease-in-out flex flex-col z-40 h-full",
+        // Mobile: Fixed position, Slide in/out logic
+        // Desktop: Relative position, Width toggle logic
+        "fixed inset-y-0 left-0 md:relative", 
+        isOpen ? "w-64 translate-x-0" : "w-64 -translate-x-full md:translate-x-0 md:w-20"
       )}
     >
       {/* Brand Logo */}
@@ -52,12 +55,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
             <Link
               key={item.path}
               to={item.path}
+              // Close sidebar on mobile when a link is clicked
+              onClick={() => window.innerWidth < 768 && setIsOpen(false)}
               className={cn(
                 "flex items-center px-6 py-3 text-sm font-medium transition-colors relative",
                 isActive 
                   ? "text-primary bg-primary/10 border-r-4 border-primary" 
                   : "text-muted-foreground hover:bg-muted hover:text-foreground",
-                !isOpen && "justify-center px-2"
+                !isOpen && "md:justify-center md:px-2" // Only center icons on desktop collapsed state
               )}
             >
               <item.icon className={cn("h-5 w-5", isOpen && "mr-3")} />
@@ -69,14 +74,14 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen }) => {
 
       {/* User Footer */}
       <div className="p-4 border-t">
-        <div className={cn("flex items-center", !isOpen && "justify-center")}>
-           <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
+        <div className={cn("flex items-center", !isOpen && "md:justify-center")}>
+           <div className="h-9 w-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold shrink-0">
              A
            </div>
            {isOpen && (
-             <div className="ml-3">
-               <p className="text-sm font-medium">Admin User</p>
-               <p className="text-xs text-muted-foreground">admin@test.com</p>
+             <div className="ml-3 overflow-hidden">
+               <p className="text-sm font-medium truncate">Admin User</p>
+               <p className="text-xs text-muted-foreground truncate">admin@test.com</p>
              </div>
            )}
         </div>

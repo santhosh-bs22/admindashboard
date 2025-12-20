@@ -24,6 +24,9 @@ import { mockTransactions, revenueData } from '../../data/mockData';
 const Dashboard: React.FC = () => {
   const [activeUsers, setActiveUsers] = useState(1234);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // 1. Add state for the filter
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Success' | 'Processing' | 'Failed'>('All');
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -31,6 +34,12 @@ const Dashboard: React.FC = () => {
     }, 3000);
     return () => clearInterval(interval);
   }, []);
+
+  // 2. Filter logic based on the "All" button or specific statuses
+  const filteredTransactions = mockTransactions.filter((txn) => {
+    if (statusFilter === 'All') return true;
+    return txn.status === statusFilter;
+  });
 
   return (
     <div className="flex-1 space-y-4 p-8 pt-6">
@@ -180,14 +189,36 @@ const Dashboard: React.FC = () => {
 
         <Card className="col-span-3">
           <CardHeader>
-            <CardTitle>Recent Sales</CardTitle>
+            <div className="flex items-center justify-between mb-2">
+              <CardTitle>Recent Sales</CardTitle>
+              {/* 3. Filter Buttons UI */}
+              <div className="flex space-x-2">
+                {['All', 'Success', 'Processing', 'Failed'].map((status) => (
+                  <button
+                    key={status}
+                    onClick={() => setStatusFilter(status as any)}
+                    className={`px-3 py-1 text-xs font-medium rounded-full transition-colors border ${
+                      statusFilter === status 
+                        ? 'bg-primary text-primary-foreground border-primary' 
+                        : 'text-muted-foreground hover:bg-muted border-transparent hover:border-border'
+                    }`}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </div>
             <CardDescription>
-              You made {mockTransactions.filter(t => t.status === 'Success').length} successful sales this month.
+              {statusFilter === 'All' 
+                ? `You made ${mockTransactions.filter(t => t.status === 'Success').length} successful sales this month.`
+                : `Showing ${filteredTransactions.length} ${statusFilter.toLowerCase()} transactions.`
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-8">
-              {mockTransactions.slice(0, 5).map((txn) => (
+              {/* 4. Display Filtered Transactions (Showing up to 6) */}
+              {filteredTransactions.slice(0, 6).map((txn) => (
                 <div key={txn.id} className="flex items-center group">
                   <div className="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary/10 text-primary items-center justify-center font-bold border border-primary/20 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
                     {txn.name.charAt(0)}
@@ -201,6 +232,12 @@ const Dashboard: React.FC = () => {
                   </div>
                 </div>
               ))}
+              
+              {filteredTransactions.length === 0 && (
+                <div className="text-center py-4 text-sm text-muted-foreground">
+                  No transactions found.
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
