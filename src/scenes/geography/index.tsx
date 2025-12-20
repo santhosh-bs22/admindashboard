@@ -1,88 +1,71 @@
 import React from 'react';
 import Header from '../../components/Header';
-import GeographyChart from '../../components/GeographyChart';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Cell 
+} from 'recharts';
 import { geographyData } from '../../data/mockData';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 import { formatINR } from '../../lib/utils';
-import { Globe, TrendingUp } from 'lucide-react';
 
-const GeographyChartPage: React.FC = () => {
-  // Sort data to find top performers
+const Geography: React.FC = () => {
+  // Sort data for better visualization in a horizontal bar chart
   const sortedData = [...geographyData].sort((a, b) => b.value - a.value);
-  const totalUsers = geographyData.reduce((acc, curr) => acc + curr.value, 0);
 
   return (
     <div className="space-y-6">
-      <Header title="Geography" subtitle="Global user distribution and traffic analysis" />
+      <Header title="Geography" subtitle="Revenue by region (Top Markets)" />
       
-      {/* Key Stats Row */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full text-blue-600">
-              <Globe className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-              <h3 className="text-2xl font-bold">{totalUsers.toLocaleString()}</h3>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="flex items-center gap-4 p-6">
-            <div className="p-3 bg-green-100 dark:bg-green-900/20 rounded-full text-green-600">
-              <TrendingUp className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Top Region</p>
-              <h3 className="text-2xl font-bold">India (IND)</h3>
-              <p className="text-xs text-muted-foreground">Highest traffic source</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        {/* Main Map Area */}
-        <Card className="lg:col-span-3 border-none shadow-md">
-          <CardHeader>
-            <CardTitle>Global Traffic Map</CardTitle>
-          </CardHeader>
-          <CardContent className="p-0 sm:p-6">
-             <GeographyChart data={geographyData} height={500} />
-          </CardContent>
-        </Card>
-        
-        {/* Sidebar - Top Regions List */}
-        <Card className="lg:col-span-1 h-full">
-          <CardHeader>
-            <CardTitle>Top Regions</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            {sortedData.map((item, index) => (
-              <div key={item.id} className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <span className="flex items-center justify-center w-6 h-6 rounded-full bg-muted text-xs font-bold text-muted-foreground">
-                    {index + 1}
-                  </span>
-                  <div>
-                    <p className="font-semibold text-sm">{item.id}</p>
-                    <div className="w-24 h-1.5 bg-muted rounded-full mt-1 overflow-hidden">
-                      <div 
-                        className="h-full bg-primary" 
-                        style={{ width: `${(item.value / sortedData[0].value) * 100}%` }} 
-                      />
-                    </div>
-                  </div>
-                </div>
-                <span className="text-sm font-medium">{formatINR(item.value)}</span>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      </div>
+      <Card>
+        <CardHeader>
+           <CardTitle>Regional Performance</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-[500px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                layout="vertical"
+                data={sortedData}
+                margin={{ top: 20, right: 30, left: 40, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} className="stroke-muted/40" />
+                <XAxis type="number" hide />
+                <YAxis 
+                  dataKey="id" 
+                  type="category" 
+                  width={60}
+                  tick={{ fill: 'hsl(var(--foreground))', fontSize: 12, fontWeight: 500 }}
+                  axisLine={false}
+                  tickLine={false}
+                />
+                <Tooltip
+                  cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                  contentStyle={{ 
+                    backgroundColor: 'hsl(var(--card))', 
+                    borderColor: 'hsl(var(--border))', 
+                    borderRadius: '8px',
+                  }}
+                  // FIX: Updated type to accept number | undefined
+                  formatter={(value: number | undefined) => [formatINR(value || 0), "Revenue"]}
+                />
+                <Bar dataKey="value" radius={[0, 4, 4, 0]} barSize={32}>
+                  {sortedData.map((entry, index) => (
+                     <Cell key={`cell-${index}`} fill={index < 3 ? 'hsl(var(--primary))' : 'hsl(var(--muted-foreground))'} />
+                  ))}
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
 
-export default GeographyChartPage;
+export default Geography;

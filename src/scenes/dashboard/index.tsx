@@ -124,15 +124,21 @@ const Dashboard: React.FC = () => {
                 <AreaChart data={revenueData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
                   <defs>
                     <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8884d8" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#8884d8" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(221, 83%, 53%)" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorProfit" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#82ca9d" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#82ca9d" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(142, 71%, 45%)" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+                  <XAxis 
+                    dataKey="name" 
+                    stroke="#888888" 
+                    fontSize={12} 
+                    tickLine={false} 
+                    axisLine={false} 
+                  />
                   <YAxis 
                     stroke="#888888" 
                     fontSize={12} 
@@ -140,13 +146,32 @@ const Dashboard: React.FC = () => {
                     axisLine={false}
                     tickFormatter={(value) => `₹${value / 1000}k`}
                   />
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted" />
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/40" />
                   <Tooltip 
-                    contentStyle={{ backgroundColor: 'var(--background)', borderColor: 'var(--border)', borderRadius: '8px' }}
+                    contentStyle={{ 
+                      backgroundColor: 'hsl(var(--card))', 
+                      borderColor: 'hsl(var(--border))', 
+                      borderRadius: '8px',
+                      color: 'hsl(var(--foreground))'
+                    }}
                     formatter={(value: number | undefined) => [formatINR(value || 0), "Amount"]}
                   />
-                  <Area type="monotone" dataKey="revenue" stroke="#8884d8" fillOpacity={1} fill="url(#colorRevenue)" />
-                  <Area type="monotone" dataKey="profit" stroke="#82ca9d" fillOpacity={1} fill="url(#colorProfit)" />
+                  <Area 
+                    type="monotone" 
+                    dataKey="revenue" 
+                    stroke="hsl(221, 83%, 53%)" 
+                    fillOpacity={1} 
+                    fill="url(#colorRevenue)" 
+                    strokeWidth={2}
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="profit" 
+                    stroke="hsl(142, 71%, 45%)" 
+                    fillOpacity={1} 
+                    fill="url(#colorProfit)" 
+                    strokeWidth={2}
+                  />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
@@ -163,17 +188,15 @@ const Dashboard: React.FC = () => {
           <CardContent>
             <div className="space-y-8">
               {mockTransactions.slice(0, 5).map((txn) => (
-                <div key={txn.id} className="flex items-center">
-                  <div className="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800 items-center justify-center">
-                    {/* Changed txn.user to txn.name */}
-                    <span className="text-xs font-bold">{txn.name.charAt(0)}</span>
+                <div key={txn.id} className="flex items-center group">
+                  <div className="relative flex h-9 w-9 shrink-0 overflow-hidden rounded-full bg-primary/10 text-primary items-center justify-center font-bold border border-primary/20 transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                    {txn.name.charAt(0)}
                   </div>
                   <div className="ml-4 space-y-1">
-                    {/* Changed txn.user to txn.name */}
                     <p className="text-sm font-medium leading-none">{txn.name}</p>
                     <p className="text-xs text-muted-foreground">{txn.method}</p>
                   </div>
-                  <div className="ml-auto font-medium">
+                  <div className={`ml-auto font-medium ${txn.status === 'Success' ? 'text-green-600 dark:text-green-500' : ''}`}>
                     {txn.status === 'Success' ? '+' : ''}{formatINR(txn.amount)}
                   </div>
                 </div>

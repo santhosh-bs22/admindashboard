@@ -1,6 +1,15 @@
 import React from 'react';
 import Header from '../../components/Header';
-import BarChart from '../../components/BarChart';
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Cell 
+} from 'recharts';
 import { barChartData } from '../../data/mockData';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/card';
 
@@ -15,8 +24,46 @@ const BarChartPage: React.FC = () => {
              <CardTitle>Sales Distribution</CardTitle>
           </CardHeader>
           <CardContent>
-             <div className="h-[400px]">
-               <BarChart data={barChartData} height={400} />
+             <div className="h-[400px] w-full">
+               <ResponsiveContainer width="100%" height="100%">
+                 <BarChart data={barChartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+                   <defs>
+                     <linearGradient id="colorBar" x1="0" y1="0" x2="0" y2="1">
+                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
+                       <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.3}/>
+                     </linearGradient>
+                   </defs>
+                   <CartesianGrid strokeDasharray="3 3" vertical={false} className="stroke-muted/40" />
+                   <XAxis 
+                     dataKey="country" 
+                     stroke="#888888" 
+                     fontSize={12} 
+                     tickLine={false} 
+                     axisLine={false} 
+                   />
+                   <YAxis 
+                     stroke="#888888" 
+                     fontSize={12} 
+                     tickLine={false} 
+                     axisLine={false} 
+                   />
+                   <Tooltip 
+                     cursor={{ fill: 'hsl(var(--muted)/0.2)' }}
+                     contentStyle={{ 
+                       backgroundColor: 'hsl(var(--card))', 
+                       borderColor: 'hsl(var(--border))', 
+                       borderRadius: '8px',
+                       boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+                     }}
+                   />
+                   <Bar 
+                     dataKey="value" 
+                     fill="url(#colorBar)" 
+                     radius={[6, 6, 0, 0]}
+                     maxBarSize={60}
+                   />
+                 </BarChart>
+               </ResponsiveContainer>
              </div>
           </CardContent>
         </Card>
